@@ -1991,6 +1991,10 @@ button:disabled {
   text-align: left;
   border-radius: 12px 0 0;
 }
+.file-tab.active > button:hover,
+.panel-tab:has([aria-selected="true"]) > button:hover {
+  background: transparent;
+}
 .panel-tab button[data-panel-tab-close] {
   padding: 6px 10px;
   border-radius: 8px;
