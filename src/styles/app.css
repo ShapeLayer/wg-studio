@@ -315,7 +315,7 @@ aside {
   justify-content: space-between;
   padding: 0 10px 16px;
 }
-.aside-label span {
+.aside-label span:not([data-i18n]) {
   background: var(--line);
   padding: 1px 6px;
   border-radius: 5px;
@@ -715,24 +715,6 @@ input:focus {
   font-size: 10px;
   line-height: 1.9;
   color: var(--muted);
-}
-.tip {
-  display: flex;
-  gap: 13px;
-  padding: 18px 7px;
-  color: var(--muted);
-}
-.tip > span {
-  font-size: 20px;
-}
-.tip p {
-  margin: 0;
-  font-size: 9px;
-}
-.tip strong {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ink);
 }
 #derived {
   background: var(--soft);
@@ -1421,7 +1403,7 @@ body {
 }
 .canvas-toolbar {
   position: fixed;
-  bottom: 24px;
+  bottom: var(--canvas-footer-bottom, 24px);
   left: 24px;
   z-index: 21;
   display: flex;
@@ -1439,10 +1421,6 @@ body {
   padding: 0 8px;
   border-radius: 12px;
   font-size: 12px;
-}
-.canvas-toolbar button[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: var(--accent);
 }
 .canvas-toolbar #zoom-reset {
   font: 11px monospace;
@@ -1476,8 +1454,6 @@ body {
 }
 .dragging,
 .dragging .card-heading,
-.pan-mode,
-.pan-mode *,
 .space-pan,
 .space-pan * {
   cursor: grabbing !important;
@@ -1658,7 +1634,6 @@ button:disabled {
   }
   .canvas-toolbar {
     left: 12px;
-    bottom: 14px;
     padding: 4px;
     border-radius: 14px;
   }
@@ -2164,6 +2139,7 @@ button:disabled {
   line-height: 1.7;
 }
 #dummy-key-controls {
+  margin-top: 28px;
   position: relative;
   padding: 18px;
   border-radius: 24px;
@@ -2438,4 +2414,167 @@ button:disabled {
 }
 .app-tooltip[hidden] {
   display: none;
+}
+
+.inspector-title > div {
+  min-width: 0;
+  flex: 1;
+}
+.inspector-name-heading {
+  margin: 10px 0 0;
+}
+#inspector-name {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  letter-spacing: inherit;
+  text-overflow: ellipsis;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    box-shadow 0.18s;
+}
+#inspector-name[readonly] {
+  cursor: text;
+}
+#inspector-name:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+#inspector-name:focus-visible,
+#inspector-name:not([readonly]) {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+#peer-profile-status:empty {
+  display: none;
+}
+
+.canvas-notice {
+  position: absolute;
+  right: 24px;
+  bottom: var(--canvas-footer-bottom, 24px);
+  z-index: 20;
+  max-width: min(380px, calc(100% - 48px));
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  cursor: default;
+  user-select: text;
+  touch-action: auto;
+}
+.canvas-notice a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+.canvas-notice a:hover {
+  text-decoration-thickness: 2px;
+}
+@media (max-width: 650px) {
+  :root {
+    --canvas-footer-bottom: 14px;
+  }
+  .canvas-notice {
+    right: 12px;
+    max-width: calc(100% - 240px);
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+}
+
+/* Component shells preserve existing grid/flex relationships in light DOM. */
+wg-studio-app,
+wg-app-menu,
+wg-network-canvas,
+wg-work-panel,
+wg-config-editor,
+wg-key-library,
+wg-task-view,
+wg-export-view,
+wg-profile-title {
+  display: contents;
+}
+wg-config-fields,
+wg-section-nav,
+wg-config-card,
+wg-inline-confirm,
+wg-tooltip {
+  display: block;
+}
+
+.locale-label {
+  display: block;
+  padding: 6px 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.locale-options button[aria-checked="true"] {
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-weight: 650;
+}
+.locale-options button::after {
+  content: "";
+  float: right;
+}
+.locale-options button[aria-checked="true"]::after {
+  content: "✓";
+}
+
+.card-name > strong {
+  cursor: text;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 3px 5px;
+  margin: -3px -5px;
+}
+.card-name > strong:hover {
+  border-color: var(--line);
+}
+.card-name > strong:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.card-name > strong:has(input) {
+  overflow: visible;
+  border-color: var(--accent);
+  background: var(--surface);
+}
+.card-name-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: var(--ink);
+  user-select: text;
+}
+
+.inline-confirm.tab-close-confirm {
+  position: fixed;
+  right: auto;
+  width: min(360px, calc(100vw - 24px));
+  z-index: 1000;
+}
+.tab-close-confirm p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
 }

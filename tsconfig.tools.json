@@ -1,11 +1,5 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "types": ["node"] },
-  "include": [
-    "src/core.ts",
-    "src/canvas.ts",
-    "src/types.ts",
-    "tests",
-    "vite.config.ts"
-  ]
+  "include": ["src/core/**/*.ts", "tests", "vite.config.ts"]
 }

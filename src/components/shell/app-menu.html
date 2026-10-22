@@ -1,0 +1,111 @@
+<div class="floating-chrome">
+  <nav class="menubar" aria-label="앱 메뉴" data-i18n-aria-label="appMenu">
+    <div class="menu-wrap">
+      <button id="file-menu" aria-expanded="false">
+        <span data-i18n="file">File</span>
+      </button>
+      <div id="file-options" class="menu" hidden>
+        <button data-action="new">
+          <span data-i18n="newConfiguration">새 설정</span></button
+        ><button data-action="batch">
+          <span data-i18n="createMultipleConfigurations2"
+            >여러 설정 만들기…</span
+          ></button
+        ><button data-action="open">
+          <span data-i18n="openFiles">파일 열기…</span>
+          <kbd><span data-i18n="o">⌘ O</span></kbd></button
+        ><button data-action="import">
+          <span data-i18n="importText2">텍스트 가져오기…</span>
+        </button>
+        <hr />
+        <button data-action="save">
+          <span data-i18n="save3">저장</span>
+          <kbd><span data-i18n="s">⌘ S</span></kbd></button
+        ><button data-action="saveas">
+          <span data-i18n="saveAs">다른 이름으로 저장…</span>
+        </button>
+        <hr />
+        <button data-action="saveall">
+          <span data-i18n="saveAllZip">모두 저장하기 (.zip)</span>
+        </button>
+        <button data-action="export">
+          <span data-i18n="export2">내보내기…</span>
+        </button>
+      </div>
+    </div>
+    <div class="menu-wrap">
+      <button id="edit-menu" aria-expanded="false">
+        <span data-i18n="edit2">Edit</span>
+      </button>
+      <div id="edit-options" class="menu" hidden>
+        <button data-action="undo">
+          <span data-i18n="undo">실행 취소</span>
+          <kbd><span data-i18n="z">⌘ Z</span></kbd></button
+        ><button data-action="redo">
+          <span data-i18n="redo">다시 실행</span>
+          <kbd><span data-i18n="z2">⌘ ⇧ Z</span></kbd>
+        </button>
+      </div>
+    </div>
+    <div class="menu-wrap">
+      <button id="view-menu" aria-expanded="false" aria-controls="view-options">
+        <span data-i18n="view">View</span>
+      </button>
+      <div id="view-options" class="menu" hidden>
+        <button id="toggle-panel" data-action="togglepanel">
+          <span data-i18n="hideWorkPanel">작업 패널 가리기</span></button
+        ><button data-action="fit">
+          <span data-i18n="fitAll">전체 보기</span></button
+        ><button data-action="keyinventory">
+          <span data-i18n="showKeyPairs">키 쌍 보기</span>
+        </button>
+        <hr />
+        <div
+          class="locale-options"
+          role="group"
+          aria-label="Language"
+          data-i18n-aria-label="language"
+        >
+          <span class="locale-label" data-i18n="language">Language</span>
+          <button
+            data-locale="en"
+            role="menuitemradio"
+            aria-checked="false"
+            lang="en"
+          >
+            English
+          </button>
+          <button
+            data-locale="ko"
+            role="menuitemradio"
+            aria-checked="false"
+            lang="ko"
+          >
+            한국어
+          </button>
+        </div>
+      </div>
+    </div>
+    <span class="menu-end"
+      ><span data-i18n="wireguardLocalEditor"
+        >WIREGUARD / LOCAL EDITOR</span
+      ></span
+    >
+  </nav>
+  <div class="tabs-bar">
+    <wg-document-tabs
+      id="tabs"
+      role="tablist"
+      aria-label="설정 파일"
+      data-i18n-aria-label="configurationFiles"
+    ></wg-document-tabs>
+    <button
+      class="tab-add"
+      data-action="new"
+      aria-label="새 파일"
+      data-i18n-aria-label="newFile"
+    >
+      ＋
+    </button>
+  </div>
+</div>

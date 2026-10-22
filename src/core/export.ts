@@ -1,3 +1,4 @@
+import { t } from "../i18n/index.ts";
 import { strToU8, zipSync } from "fflate";
 import QRCode from "qrcode";
 
@@ -50,13 +51,15 @@ export async function exportFiles(
         files[filename] = strToU8(svg);
       } catch {
         throw new Error(
-          `${selection.name}: QR 코드를 생성할 수 없습니다. 내용이 비어 있거나 QR 용량을 초과할 수 있으니 .conf 형식을 선택하세요.`,
+          t("couldNotGenerateAQrCodeTheConfigurationMay", {
+            v0: selection.name,
+          }),
         );
       }
     }
   }
   if (!Object.keys(files).length)
-    throw new Error("저장할 설정을 한 개 이상 선택하세요.");
+    throw new Error(t("selectAtLeastOneConfigurationToSave"));
   return files;
 }
 

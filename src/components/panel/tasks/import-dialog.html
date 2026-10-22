@@ -1,0 +1,44 @@
+<section data-panel-view hidden id="import-dialog">
+  <form>
+    <div class="dialog-heading">
+      <h2>
+        <span data-i18n="importConfigurationText">설정 텍스트 가져오기</span>
+      </h2>
+      <button
+        value="cancel"
+        class="icon"
+        aria-label="닫기"
+        data-i18n-aria-label="close2"
+      >
+        ×
+      </button>
+    </div>
+    <p>
+      <span data-i18n="pasteAnExistingWireguardConfigurationItOpensInA"
+        >기존 WireGuard 설정을 붙여 넣으세요. 새 파일 탭으로 열립니다.</span
+      >
+    </p>
+    <label
+      ><span data-i18n="fileName">파일 이름</span
+      ><input id="import-name" value="imported.conf" required /></label
+    ><label
+      ><span data-i18n="plaintextConfig">Plaintext config</span
+      ><textarea
+        id="import-source"
+        rows="12"
+        placeholder="[Interface]
+PrivateKey = ...
+Address = 10.0.0.1/24"
+        spellcheck="false"
+      ></textarea>
+    </label>
+    <p id="import-error" role="alert"></p>
+    <div class="dialog-actions">
+      <button value="cancel" class="secondary">
+        <span data-i18n="cancel">취소</span></button
+      ><button id="import-submit" type="button" class="primary">
+        <span data-i18n="import">가져오기</span>
+      </button>
+    </div>
+  </form>
+</section>

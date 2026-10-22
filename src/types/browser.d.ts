@@ -1,4 +1,4 @@
-import type { FilePickerOptions, LocalFileHandle } from "./types.ts";
+import type { FilePickerOptions, LocalFileHandle } from "../core/types.ts";
 declare global {
   interface Window {
     showOpenFilePicker?: (

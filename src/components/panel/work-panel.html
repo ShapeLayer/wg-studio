@@ -1,0 +1,45 @@
+<aside
+  id="right-panel"
+  aria-label="설정 및 작업 패널"
+  data-i18n-aria-label="configurationAndWorkPanel"
+  hidden
+>
+  <div
+    id="panel-resize"
+    role="separator"
+    tabindex="0"
+    aria-label="우측 패널 너비 조절"
+    data-i18n-aria-label="resizeWorkPanel"
+    aria-orientation="vertical"
+    aria-valuemin="300"
+    aria-valuenow="480"
+    aria-valuemax="1000"
+  ></div>
+  <div class="side-panel-heading">
+    <strong><span data-i18n="workPanel">작업 패널</span></strong
+    ><button
+      id="panel-close"
+      class="icon"
+      aria-label="작업 패널 가리기"
+      data-i18n-aria-label="hideWorkPanel"
+    >
+      ×
+    </button>
+  </div>
+  <div
+    id="panel-tabs"
+    role="tablist"
+    aria-label="작업 패널 탭"
+    data-i18n-aria-label="workPanelTabs"
+  ></div>
+  <div id="panel-content" class="side-panel-content">
+    <wg-config-editor></wg-config-editor>
+    <wg-key-library></wg-key-library>
+    <wg-task-view kind="batch"></wg-task-view>
+    <wg-task-view kind="connect"></wg-task-view>
+    <wg-task-view kind="import"></wg-task-view>
+    <wg-task-view kind="name"></wg-task-view>
+    <wg-task-view kind="confirm"></wg-task-view>
+    <wg-export-view></wg-export-view>
+  </div>
+</aside>

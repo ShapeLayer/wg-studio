@@ -1,0 +1,48 @@
+<section data-panel-view hidden id="batch-dialog">
+  <form>
+    <div class="dialog-heading">
+      <h2>
+        <span data-i18n="createMultipleConfigurations">여러 설정 만들기</span>
+      </h2>
+      <button
+        class="icon"
+        value="cancel"
+        aria-label="닫기"
+        data-i18n-aria-label="close2"
+      >
+        ×
+      </button>
+    </div>
+    <p>
+      <span data-i18n="createEachConfigurationAsASeparateCanvasCard"
+        >각 설정을 독립된 캔버스 카드로 만듭니다.</span
+      >
+    </p>
+    <label
+      ><span data-i18n="fileNamePrefix">파일 이름 접두사</span
+      ><input id="batch-prefix" value="wg" maxlength="60" required /></label
+    ><label
+      ><span data-i18n="numberOfConfigurations">생성할 설정 수</span
+      ><input
+        id="batch-count"
+        type="number"
+        min="1"
+        max="20"
+        value="3"
+        required /></label
+    ><label class="check-label"
+      ><input id="batch-keys" type="checkbox" checked /><span
+        data-i18n="generateAPrivateKeyForEachConfiguration"
+        >각 설정의 개인키 생성</span
+      ></label
+    >
+    <p id="batch-error" role="alert"></p>
+    <div class="dialog-actions">
+      <button class="secondary" value="cancel">
+        <span data-i18n="cancel">취소</span></button
+      ><button class="primary" id="batch-submit" type="button">
+        <span data-i18n="createConfigurations">설정 생성</span>
+      </button>
+    </div>
+  </form>
+</section>

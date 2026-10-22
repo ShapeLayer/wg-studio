@@ -1,0 +1,45 @@
+<section data-panel-view hidden id="connect-dialog">
+  <form>
+    <div class="dialog-heading">
+      <h2>
+        <span data-i18n="connectConfigurationsWithPeers"
+          >설정 사이에 피어 연결</span
+        >
+      </h2>
+      <button
+        class="icon"
+        value="cancel"
+        aria-label="닫기"
+        data-i18n-aria-label="close2"
+      >
+        ×
+      </button>
+    </div>
+    <p>
+      <span data-i18n="addAPeerUsingThePublicKeyDerivedFrom"
+        >상대 설정의 개인키에서 계산한 공개키를 Peer에 추가합니다. 개인키는
+        복사하지 않습니다.</span
+      >
+    </p>
+    <label
+      ><span data-i18n="sourceConfiguration">출발 설정</span
+      ><select id="connect-source"></select></label
+    ><label
+      ><span data-i18n="targetConfiguration">상대 설정</span
+      ><select id="connect-target"></select></label
+    ><label class="check-label"
+      ><input id="connect-mutual" type="checkbox" checked /><span
+        data-i18n="addPeersInBothDirections"
+        >양쪽 설정에 서로의 피어 추가</span
+      ></label
+    >
+    <p id="connect-error" role="alert"></p>
+    <div class="dialog-actions">
+      <button class="secondary" value="cancel">
+        <span data-i18n="cancel">취소</span></button
+      ><button class="primary" id="connect-submit" type="button">
+        <span data-i18n="addPeers">피어 추가</span>
+      </button>
+    </div>
+  </form>
+</section>

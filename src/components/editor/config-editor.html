@@ -1,0 +1,207 @@
+<section id="inspector" data-panel-view hidden>
+  <div class="inspector-title">
+    <div>
+      <span class="eyebrow"
+        ><span data-i18n="configEditor">CONFIG EDITOR</span></span
+      >
+      <wg-profile-title
+        ><h1 class="inspector-name-heading">
+          <input
+            id="inspector-name"
+            aria-label="프로필 이름 변경"
+            data-i18n-aria-label="renameProfile"
+            readonly
+            spellcheck="false"
+            autocomplete="off"
+            data-tooltip="클릭하여 이름 변경"
+            data-i18n-data-tooltip="clickToRename"
+          /></h1
+      ></wg-profile-title>
+    </div>
+  </div>
+  <div class="inspector-actions">
+    <button class="primary" data-action="save">
+      <span data-i18n="saveConfiguration">↓ 설정 저장</span>
+    </button>
+  </div>
+  <div class="workspace">
+    <aside>
+      <div class="aside-label">
+        <span data-i18n="configuration">CONFIGURATION</span>
+        <span id="section-count"></span>
+      </div>
+      <wg-section-nav id="section-nav"></wg-section-nav>
+      <button class="add-peer" data-action="peer">
+        <span data-i18n="addPeer">＋ 피어 추가</span>
+      </button>
+      <div class="privacy-card">
+        <span class="privacy-icon">⌘</span
+        ><strong
+          ><span data-i18n="yourKeysStayOnYourDevice"
+            >내 키는 내 기기에.</span
+          ></strong
+        >
+        <p>
+          <span
+            data-i18n="keyGenerationAndConfigurationEditingHappenLocallyManageYour"
+            >키 생성과 설정 편집은 로컬에서 처리됩니다. 서버 전송이나 자동 저장
+            없이 직접 관리하세요.</span
+          >
+        </p>
+        <span class="privacy-pill"
+          ><span data-i18n="100ClientSide">● 100% client-side</span></span
+        >
+      </div>
+      <div class="aside-foot">
+        <span data-i18n="wireguardConfigurationEditor"
+          >WireGuard configuration editor</span
+        ><br /><span data-i18n="builtForAQuieterWorkflow"
+          >Built for a quieter workflow.</span
+        >
+      </div>
+    </aside>
+    <section class="editor-panel">
+      <div class="panel-heading">
+        <div>
+          <span class="section-icon" id="section-icon">↔</span>
+          <div>
+            <h2 id="section-title"></h2>
+            <p id="section-description"></p>
+          </div>
+        </div>
+        <button
+          id="delete-section"
+          class="icon"
+          aria-label="섹션 삭제"
+          data-i18n-aria-label="deleteSection"
+        >
+          <svg
+            viewbox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6" />
+          </svg>
+        </button>
+      </div>
+      <div id="peer-profile-link" hidden>
+        <label for="peer-profile-select"
+          ><span data-i18n="connectToAnotherConfigurationProfile"
+            >다른 컨피그 프로필과 연결하기</span
+          ></label
+        >
+        <div class="peer-profile-actions">
+          <select
+            id="peer-profile-select"
+            aria-label="연결할 컨피그 프로필"
+            data-i18n-aria-label="configurationProfileToConnect"
+          ></select
+          ><button id="peer-profile-connect" class="secondary">
+            <span data-i18n="connect">연결하기</span>
+          </button>
+        </div>
+        <p id="peer-profile-status" role="status">
+          <span data-i18n="applyTheRemoteProfileSPublicKeyToThis2"
+            >상대 프로필의 공개키를 이 피어에 적용합니다.</span
+          >
+        </p>
+      </div>
+      <div
+        id="peer-delete-confirm"
+        role="alertdialog"
+        aria-labelledby="peer-delete-title"
+        hidden
+      >
+        <strong id="peer-delete-title"
+          ><span data-i18n="deleteThisPeer">피어를 삭제할까요?</span></strong
+        >
+        <p>
+          <span data-i18n="allFieldsInThisPeerWillBeRemovedYou"
+            >이 피어의 모든 필드가 제거됩니다. 실행 취소로 되돌릴 수
+            있습니다.</span
+          >
+        </p>
+        <div class="dialog-actions">
+          <button id="peer-delete-cancel" class="secondary">
+            <span data-i18n="cancel">취소</span></button
+          ><button id="peer-delete-accept" class="primary">
+            <span data-i18n="delete">삭제</span>
+          </button>
+        </div>
+      </div>
+      <div class="section-meta">
+        <span id="section-tag"></span
+        ><span
+          ><span data-i18n="addOrRemoveFieldsFreely"
+            >필드는 자유롭게 추가하고 제거할 수 있어요</span
+          ></span
+        >
+      </div>
+      <wg-config-fields id="fields"></wg-config-fields>
+      <button class="add-field" data-action="field">
+        <span data-i18n="addField">＋ 필드 추가</span>
+      </button>
+      <div id="derived" hidden></div>
+      <div class="editor-bottom">
+        <span>✦</span>
+        <p>
+          <span data-i18n="existingKeysCanBeEditedFreely"
+            >기존 키도 자유롭게 수정할 수 있어요.</span
+          ><br /><span
+            data-i18n="changesAreReflectedInTheConfigurationImmediately"
+            >변경 사항은 오른쪽 설정에 바로 반영됩니다.</span
+          >
+        </p>
+      </div>
+    </section>
+    <section
+      class="preview-panel"
+      aria-label="설정 미리보기"
+      data-i18n-aria-label="configurationPreview"
+    >
+      <div class="preview-heading">
+        <div>
+          <span class="live-dot"></span>
+          <h2><span data-i18n="liveConfig">Live config</span></h2>
+        </div>
+        <button id="copy" class="text-button">
+          <span data-i18n="copy2">▢ 복사</span>
+        </button>
+      </div>
+      <div class="preview-file">
+        <span id="preview-name"></span><span>WG-QUICK</span>
+      </div>
+      <div class="code-wrap">
+        <pre id="line-numbers" aria-hidden="true"></pre>
+        <textarea
+          id="source"
+          aria-label="Configuration source"
+          data-i18n-aria-label="configurationSourceLabel"
+          spellcheck="false"
+          autocapitalize="off"
+          autocomplete="off"
+        ></textarea>
+      </div>
+      <div id="parse-error" role="alert" hidden></div>
+      <div class="preview-footer">
+        <span>UTF-8 · .conf</span>
+      </div>
+      <div class="validation">
+        <div>
+          <span id="validation-symbol">◌</span
+          ><strong id="validation-title"></strong
+          ><button id="validation-toggle" class="text-button">
+            <span data-i18n="details">자세히</span>
+          </button>
+        </div>
+        <ul id="issues" hidden></ul>
+      </div>
+    </section>
+  </div>
+</section>

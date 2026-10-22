@@ -1,17 +1,38 @@
-import { PanelTabs } from "./panel-tabs.ts";
-import type { PanelTab } from "./panel-tabs.ts";
+import { t } from "../../i18n/index.ts";
+import { TemplateElement } from "../shared/element.ts";
+import template from "./work-panel.html?raw";
+import { PanelTabs } from "../../core/panel-tabs.ts";
+import type { PanelTab } from "../../core/panel-tabs.ts";
 function required<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
   if (!el) throw new Error(`Missing panel element: ${id}`);
   return el as T;
 }
-class SidePanel {
-  private root = required("right-panel");
+export class WorkPanelElement extends TemplateElement {
+  protected template = template;
+  private lifecycle?: AbortController;
+  private get root() {
+    return required("right-panel");
+  }
   private state = new PanelTabs();
   private width = 480;
   private concealed = false;
   private pending = new Map<string, (value: string) => void>();
-  constructor() {
+  connectedCallback() {
+    super.connectedCallback();
+    this.lifecycle?.abort();
+    this.lifecycle = new AbortController();
+    const signal = this.lifecycle.signal;
+    window.addEventListener(
+      "localechange",
+      () => {
+        for (const tab of this.state.tabs)
+          if (tab.documentId === undefined)
+            tab.title = this.taskTitles[tab.view] || tab.title;
+        this.refresh();
+      },
+      { signal },
+    );
     const handle = required("panel-resize");
     let drag: { pointer: number; start: number; width: number } | null = null;
     const resize = (width: number) => {
@@ -29,31 +50,43 @@ class SidePanel {
         String(Math.max(300, window.innerWidth - 280)),
       );
     };
-    handle.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      handle.setPointerCapture(e.pointerId);
-      drag = { pointer: e.pointerId, start: e.clientX, width: this.width };
-      document.body.classList.add("resizing-panel");
-    });
-    handle.addEventListener("pointermove", (e) => {
-      if (drag?.pointer === e.pointerId)
-        resize(drag.width + drag.start - e.clientX);
-    });
+    handle.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        handle.setPointerCapture(e.pointerId);
+        drag = { pointer: e.pointerId, start: e.clientX, width: this.width };
+        document.body.classList.add("resizing-panel");
+      },
+      { signal },
+    );
+    handle.addEventListener(
+      "pointermove",
+      (e) => {
+        if (drag?.pointer === e.pointerId)
+          resize(drag.width + drag.start - e.clientX);
+      },
+      { signal },
+    );
     const finish = () => {
       drag = null;
       document.body.classList.remove("resizing-panel");
     };
-    handle.addEventListener("pointerup", finish);
-    handle.addEventListener("pointercancel", finish);
-    handle.addEventListener("lostpointercapture", finish);
-    handle.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        e.preventDefault();
-        resize(this.width + (e.key === "ArrowLeft" ? 32 : -32));
-      }
-    });
-    window.addEventListener("resize", () => resize(this.width));
+    handle.addEventListener("pointerup", finish, { signal });
+    handle.addEventListener("pointercancel", finish, { signal });
+    handle.addEventListener("lostpointercapture", finish, { signal });
+    handle.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          e.preventDefault();
+          resize(this.width + (e.key === "ArrowLeft" ? 32 : -32));
+        }
+      },
+      { signal },
+    );
+    window.addEventListener("resize", () => resize(this.width), { signal });
     resize(this.width);
     required("panel-close").onclick = () => {
       if (this.pending.size) this.close();
@@ -64,15 +97,31 @@ class SidePanel {
     };
     this.initializeTabs();
     this.root.querySelectorAll<HTMLFormElement>("form").forEach((form) => {
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const button = (e as SubmitEvent).submitter as HTMLButtonElement | null;
-        this.close(
-          form.closest<HTMLElement>("[data-panel-view]")!.id,
-          button?.value || "cancel",
-        );
-      });
+      form.addEventListener(
+        "submit",
+        (e) => {
+          e.preventDefault();
+          const button = (e as SubmitEvent)
+            .submitter as HTMLButtonElement | null;
+          this.close(
+            form.closest<HTMLElement>("[data-panel-view]")!.id,
+            button?.value || "cancel",
+          );
+        },
+        { signal },
+      );
     });
+    this.refresh();
+  }
+  disconnectedCallback() {
+    this.lifecycle?.abort();
+    document.body.classList.remove("resizing-panel", "panel-open");
+    const canvas = document.getElementById("canvas");
+    if (canvas) canvas.inert = false;
+    const chrome = document.querySelector<HTMLElement>(".floating-chrome");
+    if (chrome) chrome.inert = false;
+    for (const resolve of this.pending.values()) resolve("cancel");
+    this.pending.clear();
   }
   get active() {
     return this.state.active?.view;
@@ -119,14 +168,14 @@ class SidePanel {
       button.setAttribute("aria-controls", tab.view);
       button.tabIndex = tab.key === this.state.activeKey ? 0 : -1;
       button.textContent = tab.title;
-      button.title = tab.title;
+      button.dataset.tooltip = tab.title;
       button.disabled =
         this.pending.size > 0 && tab.key !== this.state.activeKey;
       const close = document.createElement("button");
       close.type = "button";
       close.textContent = "×";
       close.dataset.panelTabClose = tab.key;
-      close.setAttribute("aria-label", `${tab.title} 탭 닫기`);
+      close.setAttribute("aria-label", t("closeTab", { v0: tab.title }));
       close.disabled =
         this.pending.size > 0 && tab.key !== this.state.activeKey;
       wrapper.append(button, close);
@@ -140,34 +189,43 @@ class SidePanel {
   }
   private initializeTabs() {
     const bar = required("panel-tabs");
-    bar.addEventListener("click", (event) => {
-      const target =
-        event.target instanceof Element
-          ? event.target.closest<HTMLButtonElement>("button")
-          : null;
-      if (!target || target.disabled) return;
-      if (target.dataset.panelTabClose)
-        this.close(target.dataset.panelTabClose);
-      else if (target.dataset.panelTab) this.activate(target.dataset.panelTab);
-    });
-    bar.addEventListener("keydown", (event) => {
-      if (this.pending.size) return;
-      const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
-      if (!keys.includes(event.key)) return;
-      event.preventDefault();
-      const tabs = this.state.tabs,
-        index = tabs.findIndex((tab) => tab.key === this.state.activeKey);
-      const next =
-        event.key === "Home"
-          ? 0
-          : event.key === "End"
-            ? tabs.length - 1
-            : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) %
-              tabs.length;
-      if (!tabs[next]) return;
-      this.activate(tabs[next].key);
-      required(`panel-tab-${tabs[next].key}`).focus();
-    });
+    bar.addEventListener(
+      "click",
+      (event) => {
+        const target =
+          event.target instanceof Element
+            ? event.target.closest<HTMLButtonElement>("button")
+            : null;
+        if (!target || target.disabled) return;
+        if (target.dataset.panelTabClose)
+          this.close(target.dataset.panelTabClose);
+        else if (target.dataset.panelTab)
+          this.activate(target.dataset.panelTab);
+      },
+      { signal: this.lifecycle!.signal },
+    );
+    bar.addEventListener(
+      "keydown",
+      (event) => {
+        if (this.pending.size) return;
+        const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+        const tabs = this.state.tabs,
+          index = tabs.findIndex((tab) => tab.key === this.state.activeKey);
+        const next =
+          event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? tabs.length - 1
+              : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) %
+                tabs.length;
+        if (!tabs[next]) return;
+        this.activate(tabs[next].key);
+        required(`panel-tab-${tabs[next].key}`).focus();
+      },
+      { signal: this.lifecycle!.signal },
+    );
   }
   private refresh(activate = false) {
     this.root.hidden = !this.visible;
@@ -210,24 +268,27 @@ class SidePanel {
     this.state.open(tab);
     this.refresh(true);
   }
+  private get taskTitles(): Record<string, string> {
+    return {
+      "batch-dialog": t("createMultipleConfigurations"),
+      "connect-dialog": t("connectPeers"),
+      "import-dialog": t("importText"),
+      "name-dialog": t("rename"),
+      "confirm-dialog": t("confirm"),
+      "export-dialog": t("export"),
+      "key-inventory": t("keyPairs"),
+    };
+  }
   show(id: string, push = false) {
     if (id === "inspector") {
       window.dispatchEvent(new Event("panelopeneditor"));
       return;
     }
-    const titles: Record<string, string> = {
-      "batch-dialog": "여러 설정 만들기",
-      "connect-dialog": "피어 연결",
-      "import-dialog": "텍스트 가져오기",
-      "name-dialog": "이름 변경",
-      "confirm-dialog": "확인",
-      "export-dialog": "내보내기",
-      "key-inventory": "키 쌍",
-    };
+
     this.open({
       key: id,
       view: id,
-      title: titles[id] || id,
+      title: this.taskTitles[id] || id,
       ...(push ? { returnTo: this.state.activeKey } : {}),
     });
   }
@@ -261,4 +322,3 @@ class SidePanel {
     });
   }
 }
-export const panel = new SidePanel();
