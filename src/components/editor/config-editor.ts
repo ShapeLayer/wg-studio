@@ -68,7 +68,11 @@ export class ConfigEditorElement extends TemplateElement {
     this.element("#parse-error").textContent = error;
     this.element("#fields").inert = !!error;
   }
-  updateValidation(issues: readonly string[], expanded: boolean) {
+  updateValidation(
+    issues: readonly string[],
+    expanded: boolean,
+    canResolveAddress = false,
+  ) {
     this.element("#validation-title").textContent = issues.length
       ? t("reviewItems", { v0: issues.length })
       : t("configurationFormatIsValid");
@@ -79,7 +83,7 @@ export class ConfigEditorElement extends TemplateElement {
           `<li data-severity="${issue.startsWith("Info:") ? "info" : "warning"}">${esc(issue)}</li>`,
       )
       .join("");
-    if (issues.some((issue) => issue.startsWith("Warning:")))
+    if (canResolveAddress)
       this.element("#issues").insertAdjacentHTML(
         "beforeend",
         `<li><button data-address-resolve>${th("addressResolveOpen")}</button></li>`,

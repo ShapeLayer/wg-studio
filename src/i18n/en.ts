@@ -383,5 +383,7 @@ export const en = {
     "Candidates use incoming peer reservations and connected Interface subnets. An address outside the previous subnet may use a different prefix; review it before applying.",
   addressNoSuggestion:
     "No unoccupied address could be inferred. Enter an address or free a reservation; no arbitrary subnet will be created.",
+  unlinkedAllocatedPeer:
+    "Warning: Peer {peer} has allocated AllowedIPs ({addresses}) but is not linked to another open configuration. Open the remote profile or check its public key.",
 } as const;
 export type MessageKey = keyof typeof en;

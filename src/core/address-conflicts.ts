@@ -241,6 +241,45 @@ export function planAddressChange(
   return changes;
 }
 
+/** An allocated peer is unresolved until its key points at another valid open profile. */
+export function unlinkedPeerWarnings(
+  current: AddressValidationDocument,
+  documents: readonly AddressValidationDocument[],
+  edges: readonly KeyConnection[],
+): string[] {
+  if (current.error) return [];
+  const warnings: string[] = [];
+  let peerNumber = 0;
+  current.model.sections.forEach((section, index) => {
+    if (section.type !== "Peer") return;
+    peerNumber++;
+    const addresses = section.fields
+      .filter((f) => f.key === "AllowedIPs")
+      .flatMap((f) => (f.value || "").split(",").map((v) => v.trim()))
+      .filter((v) => !!parseCIDR(v));
+    if (!addresses.length) return;
+    const key = section.fields.find((f) => f.key === "PublicKey")?.value;
+    const linked =
+      !!key &&
+      edges.some(
+        (e) =>
+          e.source === current.id &&
+          e.section === index &&
+          e.key === key &&
+          e.target !== current.id &&
+          documents.some((d) => d.id === e.target && !d.error),
+      );
+    if (!linked)
+      warnings.push(
+        t("unlinkedAllocatedPeer", {
+          peer: peerNumber,
+          addresses: [...new Set(addresses)].join(", "),
+        }),
+      );
+  });
+  return warnings;
+}
+
 let workspaceEdges: readonly KeyConnection[] = [];
 export function setAddressEdges(edges: readonly KeyConnection[]) {
   workspaceEdges = edges;
@@ -249,11 +288,15 @@ export function workspaceAddressMessages(
   current: AddressValidationDocument,
   documents: readonly AddressValidationDocument[],
 ): string[] {
-  return conflictMessages(
-    current.id,
-    documents,
-    addressConflicts(documents, workspaceEdges),
-  );
+  if (current.error) return [];
+  return [
+    ...conflictMessages(
+      current.id,
+      documents,
+      addressConflicts(documents, workspaceEdges),
+    ),
+    ...unlinkedPeerWarnings(current, documents, workspaceEdges),
+  ];
 }
 
 export interface PeerConnectionContext {

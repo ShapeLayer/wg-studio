@@ -309,6 +309,10 @@ function renderValidation() {
           ...workspaceAddressMessages(doc(), documents),
         ],
     showIssues,
+    !sourceError &&
+      addressConflicts(documents, canvasEdges).some(
+        (c) => c.connected && (c.first === active || c.second === active),
+      ),
   );
 }
 async function updateDerived() {

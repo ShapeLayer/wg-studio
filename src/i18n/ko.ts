@@ -369,4 +369,6 @@ export const ko: Record<MessageKey, string> = {
     "연결된 피어의 예약 주소와 Interface 대역을 바탕으로 후보를 제안합니다. 기존 서브넷 밖의 주소는 접두 길이가 달라질 수 있으니 적용 전에 확인하세요.",
   addressNoSuggestion:
     "사용 가능한 주소를 추론할 수 없습니다. 주소를 직접 입력하거나 예약을 정리하세요. 임의의 서브넷을 생성하지 않습니다.",
+  unlinkedAllocatedPeer:
+    "Warning: Peer {peer}에 AllowedIPs 주소({addresses})가 할당되어 있지만, 열려 있는 다른 컨피그와 연결되지 않았습니다. 상대 프로필을 열거나 공개키를 확인하세요.",
 };
