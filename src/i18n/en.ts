@@ -352,5 +352,36 @@ export const en = {
     "Peer {peer}: {address} is a network or broadcast address in the Interface subnet. Choose a host address.",
   profilesShareInterfaceAddress:
     "Interface address {address} is also used by the open profile {name}. Check for duplicate IP allocation.",
+  connectedAddressConflict:
+    "Warning: {first} and {second} use {address} in the same network. Two peers in one network cannot have the same address.",
+  separateAddressConflict:
+    "Info: {first} and {second} share Interface address {address}.",
+  addressConflictTitle: "Resolve duplicate address",
+  addressProfile: "Profile to adjust",
+  replacementAddress: "New Interface address",
+  reviewAddressChange: "Review changes",
+  addressChangeReview:
+    "Review the Interface and incoming peer route changes below. Broad routes are preserved; a host route is added when needed to reach the new address. Undo returns to editing; Stop leaves all configurations unchanged.",
+  addressContinue: "Continue",
+  addressUndo: "Undo",
+  addressStop: "Stop",
+  invalidReplacementAddress:
+    "Enter a different, valid address of the same IP version.",
+  replacementAddressInUse: "This address is already used by an open profile.",
+  addressPlanExpired: "Configurations changed. Review the address again.",
+  addressResolveOpen: "Resolve address conflict",
+  ambiguousAddressKey:
+    "One peer key identifies multiple profiles. Give those profiles distinct keys before changing their addresses.",
+  addressSuggestions: "Address suggestions",
+  addressManualChoice: "Enter an address manually",
+  addressCandidateReserved: "{address} · reserved by {names}",
+  addressCandidateRange: "{address} · host within a routed subnet ({names})",
+  addressCandidateFree: "{address} · available subnet address",
+  addressChoiceExplanation:
+    "Several reservations or a routed subnet may describe different intentions. Choose an address explicitly. Default routes do not identify a device address.",
+  addressSuggestionExplanation:
+    "Candidates use incoming peer reservations and connected Interface subnets. An address outside the previous subnet may use a different prefix; review it before applying.",
+  addressNoSuggestion:
+    "No unoccupied address could be inferred. Enter an address or free a reservation; no arbitrary subnet will be created.",
 } as const;
 export type MessageKey = keyof typeof en;

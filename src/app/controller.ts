@@ -1,4 +1,10 @@
-import { workspaceAddressWarnings } from "../core/address-validation.ts";
+import type { PeerConnectionContext } from "../core/address-conflicts.ts";
+import {
+  addressConflicts,
+  setAddressEdges,
+} from "../core/address-conflicts.ts";
+import { AddressResolverElement } from "../components/shared/address-resolver.ts";
+import { workspaceAddressMessages } from "../core/address-conflicts.ts";
 import {
   allocateInterfaceAddress,
   allocatePeerAddresses,
@@ -26,6 +32,7 @@ import "../components/shared/tooltip.ts";
 import {
   confirmInline,
   dismissInlineConfirm,
+  inlineConfirmHost,
 } from "../components/shared/inline-confirm.ts";
 import { panel } from "./panel.ts";
 import { rememberDocument, travelHistory } from "../core/history.ts";
@@ -299,7 +306,7 @@ function renderValidation() {
       ? [sourceError]
       : [
           ...validate(doc().model),
-          ...workspaceAddressWarnings(doc(), documents),
+          ...workspaceAddressMessages(doc(), documents),
         ],
     showIssues,
   );
@@ -523,8 +530,9 @@ const actions: Record<string, () => unknown> = {
         doc().model,
         documents.filter((d) => d.id !== active).map((d) => d.model),
       );
-      peer.fields.find((field) => field.key === "AllowedIPs")!.value =
-        addresses.map((address) => address.allowedIP).join(", ");
+      peer.fields.find((field) => field.key === "AllowedIPs")!.value = addresses
+        .map((address) => address.allowedIP)
+        .join(", ");
     } catch (error) {
       // Still add the peer; AllowedIPs stays empty for the user to fill in.
       allocationError = errorMessage(error);
@@ -837,6 +845,7 @@ $<HTMLSelectElement>("#peer-profile-select").onchange = () => {
       : t("connect");
 };
 $<HTMLButtonElement>("#peer-profile-connect").onclick = async () => {
+  addressConnectionContext = undefined;
   const source = doc(),
     peer = section(),
     sourceText = source.text;
@@ -901,6 +910,11 @@ $<HTMLButtonElement>("#peer-profile-connect").onclick = async () => {
       target.model = model;
       target.text = serialize(model);
     }
+    addressConnectionContext = {
+      source: source.id,
+      section: source.model.sections.indexOf(peer),
+      target: target.id,
+    };
     change(() => {
       const field = peer.fields.find((f) => f.key === "PublicKey");
       if (field) {
@@ -908,6 +922,8 @@ $<HTMLButtonElement>("#peer-profile-connect").onclick = async () => {
         delete field.original;
       } else peer.fields.unshift({ key: "PublicKey", value: publicKey });
     });
+    addressConnectionContext.sourceText = source.text;
+    addressConnectionContext.targetText = target.text;
     status.textContent = t("connectedToCheckTheReversePeerConfigurationToo", {
       v0: target.name,
     });
@@ -1252,7 +1268,122 @@ async function updateConnections() {
   if (revision !== connectionRevision) return;
   canvasEdges = keyConnections(snapshot, pubs);
   network().updateConnections(documents, canvasEdges, active, camera);
+  setAddressEdges(canvasEdges);
+  network().updateCards(documents, active);
+  renderValidation();
+  offerAddressResolution();
 }
+let addressConnectionContext: PeerConnectionContext | undefined;
+let shownAddressConflicts = new Set<string>();
+let addressResolver: AddressResolverElement | undefined;
+let resolvingAddressConflict = "";
+let addressPromptOrigin: HTMLElement | null = null;
+for (const type of ["pointerdown", "input"]) {
+  document.addEventListener(
+    type,
+    (event) => {
+      const target = event.target;
+      if (
+        !(target instanceof HTMLElement) ||
+        target.closest("wg-address-resolver")
+      )
+        return;
+      if (target.closest("#right-panel"))
+        addressPromptOrigin = inlineConfirmHost(target);
+    },
+    { capture: true },
+  );
+}
+function offerAddressResolution(force = false) {
+  const conflicts = addressConflicts(documents, canvasEdges).filter(
+    (c) => c.connected,
+  );
+  const current = new Set(conflicts.map((c) => c.id));
+  shownAddressConflicts = new Set(
+    [...shownAddressConflicts].filter((id) => current.has(id)),
+  );
+  if (addressResolver && !current.has(resolvingAddressConflict)) {
+    addressResolver.remove();
+    addressResolver = undefined;
+  }
+  if (addressResolver) return;
+  const conflict = conflicts.find(
+    (c) => force || !shownAddressConflicts.has(c.id),
+  );
+  if (!conflict) return;
+  // Connections can also appear after imports, source edits or dummy-key edits.
+  // Keep those prompts in the same work panel, even when it was concealed.
+  if (!panel.visible) openInspector();
+  dismissInlineConfirm();
+  shownAddressConflicts.add(conflict.id);
+  const popup = document.createElement(
+    "wg-address-resolver",
+  ) as AddressResolverElement;
+  addressResolver = popup;
+  resolvingAddressConflict = conflict.id;
+  const focused = document.activeElement;
+  const origin =
+    focused instanceof HTMLElement && focused.closest("#right-panel")
+      ? focused
+      : null;
+  const peerLink = document.getElementById("peer-profile-link");
+  const fallback =
+    panel.active === "inspector" && peerLink && !peerLink.hidden
+      ? peerLink.querySelector<HTMLElement>("#peer-profile-connect")
+      : document.querySelector<HTMLElement>(
+          "#right-panel [data-panel-view]:not([hidden]) .panel-heading",
+        );
+  const anchor = origin?.closest(
+    ".field,#peer-profile-link,#dummy-key-controls,.code-wrap,[data-address-resolve]",
+  )
+    ? origin
+    : fallback;
+  const previousHost =
+    addressPromptOrigin?.isConnected && !addressPromptOrigin.closest("[hidden]")
+      ? addressPromptOrigin
+      : null;
+  const host =
+    (origin ? inlineConfirmHost(origin) : previousHost) ??
+    (anchor
+      ? inlineConfirmHost(anchor)
+      : document.querySelector<HTMLElement>(
+          "#right-panel [data-panel-view]:not([hidden]) .panel-heading",
+        ));
+  (host ?? document.getElementById("panel-content")!).append(popup);
+  popup.open(
+    conflict,
+    () => ({ documents, edges: canvasEdges }),
+    (changes) => {
+      if (
+        changes.some(
+          (c) => documents.find((d) => d.id === c.id)?.text !== c.before,
+        )
+      )
+        return false;
+      const prepared = changes.map((c) => ({
+        change: c,
+        model: parse(c.after),
+        document: documents.find((d) => d.id === c.id)!,
+      }));
+      for (const entry of prepared) {
+        rememberDocument(entry.document);
+        entry.document.model = entry.model;
+        entry.document.text = entry.change.after;
+      }
+      render();
+      return true;
+    },
+    () => {
+      addressResolver = undefined;
+      offerAddressResolution();
+    },
+    addressConnectionContext,
+  );
+}
+document.addEventListener("click", (event) => {
+  if ((event.target as HTMLElement).closest("[data-address-resolve]"))
+    offerAddressResolution(true);
+});
 function redrawConnections() {
   network().redrawConnections(documents, canvasEdges, camera);
 }

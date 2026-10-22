@@ -2578,3 +2578,140 @@ wg-tooltip {
   margin: 10px 0;
   overflow-wrap: anywhere;
 }
+
+/* Match the compact field confirmations in the work panel, independent of canvas zoom. */
+#right-panel .address-resolver {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: auto;
+  right: 0;
+  width: min(360px, 100%);
+  max-height: calc(100dvh - 160px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 11px;
+  box-shadow: 0 12px 36px #17332735;
+}
+.address-resolver .resolver-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.address-resolver .resolver-heading strong {
+  font-size: 13px;
+}
+#right-panel .address-resolver .resolver-heading .icon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--muted);
+}
+#right-panel .address-resolver p {
+  font-size: 11px;
+  line-height: 1.65;
+  margin: 10px 0;
+}
+#right-panel .address-resolver label {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+#right-panel .address-resolver input,
+#right-panel .address-resolver select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 400;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+#right-panel .address-resolver select {
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23246b49' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+#right-panel .address-resolver input:hover,
+#right-panel .address-resolver select:hover {
+  border-color: var(--muted);
+}
+#right-panel .address-resolver input:focus-visible,
+#right-panel .address-resolver select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.address-resolver .resolver-preview {
+  display: grid;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.address-resolver .resolver-preview section {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--soft);
+}
+.address-resolver .resolver-preview strong {
+  font-size: 11px;
+}
+.address-resolver .resolver-preview pre {
+  font-size: 10px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#right-panel .address-resolver .resolver-error {
+  color: #a43b2b;
+}
+.address-resolver .resolver-error:empty {
+  display: none;
+}
+#right-panel .address-resolver .dialog-actions {
+  position: sticky;
+  bottom: -18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 0 0;
+  background: var(--surface);
+}
+#right-panel .address-resolver .dialog-actions button {
+  padding: 10px 17px;
+  font-size: 11px;
+}
+#issues [data-severity="info"] {
+  color: #38677b;
+}
+#issues [data-severity="warning"] {
+  color: #805421;
+}
+
+#right-panel .panel-heading,
+#right-panel .code-wrap {
+  position: relative;
+}

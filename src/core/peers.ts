@@ -19,6 +19,5 @@ export function peerForInterface(
       return `${ip}/${ip.includes(":") ? "128" : "32"}`;
     })
     .join(", ");
-  peer.fields = peer.fields.filter((field) => field.key !== "Endpoint");
   return peer;
 }

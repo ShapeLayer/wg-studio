@@ -338,4 +338,35 @@ export const ko: Record<MessageKey, string> = {
     "Peer {peer}: {address}는 Interface 대역의 네트워크 또는 브로드캐스트 주소입니다. 호스트 주소를 사용하세요.",
   profilesShareInterfaceAddress:
     "Interface 주소 {address}를 열려 있는 {name} 프로필에서도 사용하고 있습니다. IP 중복 할당 여부를 확인하세요.",
+  connectedAddressConflict:
+    "Warning: {first}와 {second}가 같은 네트워크에서 {address}를 사용합니다. 동일한 주소를 가진 피어는 같은 네트워크에 둘 이상 있을 수 없습니다.",
+  separateAddressConflict:
+    "Info: {first}와 {second}의 Interface 주소 {address}가 겹칩니다.",
+  addressConflictTitle: "중복 주소 조정",
+  addressProfile: "조정할 프로필",
+  replacementAddress: "새 Interface 주소",
+  reviewAddressChange: "변경 사항 확인",
+  addressChangeReview:
+    "아래 Interface 및 상대 피어 경로 변경을 확인하세요. 넓은 대역 경로는 보존하며, 새 주소에 도달하는 경로가 없으면 호스트 경로를 추가합니다. 되돌리기는 편집으로 돌아가고, 중단하면 설정을 유지합니다.",
+  addressContinue: "계속하기",
+  addressUndo: "되돌리기",
+  addressStop: "중단",
+  invalidReplacementAddress:
+    "같은 IP 버전의 서로 다른 올바른 주소를 입력하세요.",
+  replacementAddressInUse: "이 주소는 열려 있는 다른 프로필에서 사용 중입니다.",
+  addressPlanExpired: "설정이 변경되었습니다. 주소를 다시 확인하세요.",
+  addressResolveOpen: "주소 충돌 조정",
+  ambiguousAddressKey:
+    "하나의 피어 키가 여러 프로필을 가리킵니다. 주소를 조정하기 전에 각 프로필의 키를 구분하세요.",
+  addressSuggestions: "주소 후보",
+  addressManualChoice: "주소 직접 입력",
+  addressCandidateReserved: "{address} · {names}의 예약 주소",
+  addressCandidateRange: "{address} · 라우팅 대역 내 호스트 ({names})",
+  addressCandidateFree: "{address} · 서브넷의 빈 주소",
+  addressChoiceExplanation:
+    "여러 예약 주소나 라우팅 대역은 용도가 다를 수 있습니다. 적용할 주소를 직접 선택하세요. 기본 경로만으로는 기기의 주소를 정할 수 없습니다.",
+  addressSuggestionExplanation:
+    "연결된 피어의 예약 주소와 Interface 대역을 바탕으로 후보를 제안합니다. 기존 서브넷 밖의 주소는 접두 길이가 달라질 수 있으니 적용 전에 확인하세요.",
+  addressNoSuggestion:
+    "사용 가능한 주소를 추론할 수 없습니다. 주소를 직접 입력하거나 예약을 정리하세요. 임의의 서브넷을 생성하지 않습니다.",
 };

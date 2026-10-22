@@ -74,8 +74,16 @@ export class ConfigEditorElement extends TemplateElement {
       : t("configurationFormatIsValid");
     this.element("#validation-symbol").textContent = issues.length ? "◌" : "✓";
     this.element("#issues").innerHTML = issues
-      .map((issue) => `<li>${esc(issue)}</li>`)
+      .map(
+        (issue) =>
+          `<li data-severity="${issue.startsWith("Info:") ? "info" : "warning"}">${esc(issue)}</li>`,
+      )
       .join("");
+    if (issues.some((issue) => issue.startsWith("Warning:")))
+      this.element("#issues").insertAdjacentHTML(
+        "beforeend",
+        `<li><button data-address-resolve>${th("addressResolveOpen")}</button></li>`,
+      );
     this.element("#issues").hidden = !expanded;
     this.element("#validation-toggle").textContent = expanded
       ? t("collapse")

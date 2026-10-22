@@ -1,4 +1,4 @@
-import { workspaceAddressWarnings } from "../../core/address-validation.ts";
+import { workspaceAddressMessages } from "../../core/address-conflicts.ts";
 import { t, th } from "../../i18n/index.ts";
 import type { ProfileRenameDetail } from "../editor/profile-title.ts";
 import type { ConfigDocument } from "../../core/types.ts";
@@ -144,7 +144,7 @@ export class ConfigCardElement extends HTMLElement {
     if (input.value !== d.text) input.value = d.text;
     const issues = d.error
       ? [d.error]
-      : [...validate(d.model), ...workspaceAddressWarnings(d, documents)];
+      : [...validate(d.model), ...workspaceAddressMessages(d, documents)];
     this.querySelector(".card-footer")!.innerHTML =
       `<span class="${issues.length ? "needs-check" : "valid"}"${issues.length ? ` tabindex="0" data-tooltip="${esc(issues.map((issue) => `• ${issue}`).join("\n"))}" aria-label="${esc(t("itemsToReview", { v0: issues.length, v1: issues.join("; ") }))}"` : ""}>${issues.length ? t("itemsToReview2", { v0: issues.length }) : t("configurationFormatChecked")}</span><button class="text-button" data-card-save="${d.id}">${th("save")}</button>`;
   }

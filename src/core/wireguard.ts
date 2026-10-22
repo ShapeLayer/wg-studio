@@ -109,7 +109,6 @@ export function newPeer() {
     fields: [
       { key: "PublicKey", value: "" },
       { key: "AllowedIPs", value: "" },
-      { key: "Endpoint", value: "" },
       { key: "PersistentKeepalive", value: "25" },
     ],
   } satisfies ConfigSection;

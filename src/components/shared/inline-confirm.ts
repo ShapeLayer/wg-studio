@@ -105,6 +105,15 @@ export class InlineConfirmElement extends HTMLElement {
 }
 defineElement("wg-inline-confirm", InlineConfirmElement);
 
+/** All field prompts use the same containing block and offset. */
+export function inlineConfirmHost(anchor: HTMLElement): HTMLElement | null {
+  return (
+    anchor.closest<HTMLElement>(
+      ".field,#peer-profile-link,#dummy-key-controls,.editor-panel,.code-wrap,.panel-heading",
+    ) ?? anchor.parentElement
+  );
+}
+
 export function confirmInline(
   anchor: HTMLElement,
   title: string,
@@ -114,11 +123,7 @@ export function confirmInline(
 ): Promise<boolean> {
   dismissInlineConfirm();
   const host =
-    placement === "below-tab"
-      ? document.body
-      : (anchor.closest<HTMLElement>(
-          ".field,#peer-profile-link,#dummy-key-controls,.editor-panel",
-        ) ?? anchor.parentElement);
+    placement === "below-tab" ? document.body : inlineConfirmHost(anchor);
   if (!host) return Promise.resolve(false);
   const popup = document.createElement(
     "wg-inline-confirm",
