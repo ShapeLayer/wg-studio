@@ -64,19 +64,3 @@ public/                   # Static hosting files
 Component HTML templates live beside their TypeScript files and are bundled by Vite using `?raw` imports. Components use Light DOM to share the existing theme. `core/` modules do not depend on application controllers or UI components; `app/` coordinates document state and component updates.
 
 Production builds use `/wg-studio/` as the base path. After `npm run build`, preview the result at `http://localhost:4173/wg-studio/`.
-
-## Languages
-
-The whole interface supports English and Korean, including field help, validation, tooltips, accessibility labels, and export messages. Change languages in **View → Language** without closing open configurations.
-
-The initial language is resolved in this order:
-
-1. A supported preference saved under `user-locale-preference`.
-2. The machine's date locale from `Intl.DateTimeFormat().resolvedOptions().locale`.
-3. The machine's number locale from `Intl.NumberFormat().resolvedOptions().locale`.
-4. `navigator.language`, followed by `navigator.languages`.
-5. English if none of these match a supported language.
-
-Regional variants such as `ko-KR` and `en-US` match their base language. Intl locales take precedence because a Korean machine can report English first in browser language preferences. Invalid saved values and unavailable APIs are skipped. Only an explicit language selection is stored locally; configurations and keys remain in memory.
-
-Add translations in `src/i18n/en.ts` and `src/i18n/ko.ts`. Both catalogs share typed keys. Static templates use `data-i18n` markers; dynamic messages use `t()` or the HTML-escaped `th()`. Language changes update UI text without translating configuration values, file names, key material, or comments.
