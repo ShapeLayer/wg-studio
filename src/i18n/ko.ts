@@ -321,4 +321,21 @@ export const ko: Record<MessageKey, string> = {
     "{v0} 프로필의 개인키를 생성하고 새 프로필의 역방향 피어에 공개키를 적용합니다.",
   profileCreatedAndConnectedBothWays:
     "{v0} 프로필을 생성하고 양방향 피어를 설정했습니다. 사용 전 Endpoint를 확인하세요.",
+  interfaceAddressRequiredForAllocation:
+    "피어 IP를 할당하려면 먼저 Interface Address에 CIDR 대역을 설정하세요.",
+  invalidInterfaceAddressForAllocation:
+    "Interface Address {address}에서 피어 IP를 할당할 수 없습니다. IP/CIDR 형식을 확인하세요.",
+  noAvailablePeerAddress:
+    "{network} 대역에 사용 가능한 피어 주소가 없습니다. Interface Address와 기존 피어의 AllowedIPs를 확인하세요.",
+  peerAddedWithoutAddress: "AllowedIPs 없이 피어를 추가했습니다. {v0}",
+  peerAddressConflict:
+    "Peer {first}와 Peer {second}의 AllowedIPs 주소/대역이 중복됩니다: {address}. 피어 IP가 중복 할당되었는지 확인하세요.",
+  peerUsesInterfaceAddress:
+    "Peer {peer}: {address} 주소를 현재 Interface에서도 사용하고 있습니다. 피어 IP 할당을 확인하세요.",
+  peerAddressOutsideInterface:
+    "Peer {peer}: 호스트 경로 {address}가 현재 Interface Address 대역 밖에 있습니다. 의도한 라우팅인지 확인하세요.",
+  peerUsesNetworkOrBroadcast:
+    "Peer {peer}: {address}는 Interface 대역의 네트워크 또는 브로드캐스트 주소입니다. 호스트 주소를 사용하세요.",
+  profilesShareInterfaceAddress:
+    "Interface 주소 {address}를 열려 있는 {name} 프로필에서도 사용하고 있습니다. IP 중복 할당 여부를 확인하세요.",
 };

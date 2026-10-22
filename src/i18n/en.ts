@@ -335,5 +335,22 @@ export const en = {
     "Generate a private key for {v0} and use its public key in the new profile’s reverse peer.",
   profileCreatedAndConnectedBothWays:
     "Created {v0} and configured peers in both directions. Check the Endpoint values before use.",
+  interfaceAddressRequiredForAllocation:
+    "Set an Interface Address with a CIDR prefix before assigning a peer IP.",
+  invalidInterfaceAddressForAllocation:
+    "Cannot allocate a peer IP from Interface Address {address}. Check its IP/CIDR format.",
+  noAvailablePeerAddress:
+    "No unused peer address is available in {network}. Check Interface Address and existing peer AllowedIPs.",
+  peerAddedWithoutAddress: "Added the peer without AllowedIPs. {v0}",
+  peerAddressConflict:
+    "Peer {first} and Peer {second} use the same AllowedIPs address/range: {address}. Check for duplicate peer IP allocation.",
+  peerUsesInterfaceAddress:
+    "Peer {peer}: {address} is also used by this Interface. Check the peer IP allocation.",
+  peerAddressOutsideInterface:
+    "Peer {peer}: host route {address} is outside the Interface Address subnets. Check whether this routing is intentional.",
+  peerUsesNetworkOrBroadcast:
+    "Peer {peer}: {address} is a network or broadcast address in the Interface subnet. Choose a host address.",
+  profilesShareInterfaceAddress:
+    "Interface address {address} is also used by the open profile {name}. Check for duplicate IP allocation.",
 } as const;
 export type MessageKey = keyof typeof en;

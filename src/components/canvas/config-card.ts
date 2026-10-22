@@ -1,3 +1,4 @@
+import { workspaceAddressWarnings } from "../../core/address-validation.ts";
 import { t, th } from "../../i18n/index.ts";
 import type { ProfileRenameDetail } from "../editor/profile-title.ts";
 import type { ConfigDocument } from "../../core/types.ts";
@@ -91,7 +92,11 @@ export class ConfigCardElement extends HTMLElement {
       }),
     );
   }
-  update(d: ConfigDocument, active: number) {
+  update(
+    d: ConfigDocument,
+    active: number,
+    documents: readonly ConfigDocument[],
+  ) {
     if (!this.initialized) {
       this.classList.add("config-card");
       this.setAttribute("role", "article");
@@ -137,7 +142,9 @@ export class ConfigCardElement extends HTMLElement {
     const input = this.querySelector<HTMLTextAreaElement>(".canvas-source")!;
     input.setAttribute("aria-label", t("configurationSource", { v0: d.name }));
     if (input.value !== d.text) input.value = d.text;
-    const issues = d.error ? [d.error] : validate(d.model);
+    const issues = d.error
+      ? [d.error]
+      : [...validate(d.model), ...workspaceAddressWarnings(d, documents)];
     this.querySelector(".card-footer")!.innerHTML =
       `<span class="${issues.length ? "needs-check" : "valid"}"${issues.length ? ` tabindex="0" data-tooltip="${esc(issues.map((issue) => `• ${issue}`).join("\n"))}" aria-label="${esc(t("itemsToReview", { v0: issues.length, v1: issues.join("; ") }))}"` : ""}>${issues.length ? t("itemsToReview2", { v0: issues.length }) : t("configurationFormatChecked")}</span><button class="text-button" data-card-save="${d.id}">${th("save")}</button>`;
   }

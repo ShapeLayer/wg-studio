@@ -1,3 +1,4 @@
+import { validateAddressAssignments } from "./address-validation.ts";
 import { t } from "../i18n/index.ts";
 import type { ConfigModel, ConfigSection, SectionType } from "./types.ts";
 export const keys: Record<SectionType, string[]> = {
@@ -107,7 +108,7 @@ export function newPeer() {
     type: "Peer",
     fields: [
       { key: "PublicKey", value: "" },
-      { key: "AllowedIPs", value: "10.0.0.2/32" },
+      { key: "AllowedIPs", value: "" },
       { key: "Endpoint", value: "" },
       { key: "PersistentKeepalive", value: "25" },
     ],
@@ -137,20 +138,28 @@ export async function publicFromPrivate(value: string): Promise<string> {
     0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x6e,
     0x04, 0x22, 0x04, 0x20,
   ];
+  let key: CryptoKey;
   try {
-    const key = await crypto.subtle.importKey(
+    key = await crypto.subtle.importKey(
       "pkcs8",
       new Uint8Array([...prefix, ...bytes]),
       "X25519",
       true,
       ["deriveBits"],
     );
-    const jwk = await crypto.subtle.exportKey("jwk", key);
-    if (!jwk.x) throw new Error(t("couldNotExtractTheX25519PublicKey"));
-    return jwk.x.replaceAll("-", "+").replaceAll("_", "/") + "=";
-  } catch {
-    throw new Error(t("thisBrowserDoesNotSupportX25519KeyDerivationUse"));
+  } catch (error) {
+    // Only a missing algorithm means the browser lacks X25519; other failures
+    // are reported as key problems instead of a misleading support message.
+    if (
+      !globalThis.crypto?.subtle ||
+      (error instanceof DOMException && error.name === "NotSupportedError")
+    )
+      throw new Error(t("thisBrowserDoesNotSupportX25519KeyDerivationUse"));
+    throw new Error(t("invalidBase64Key"));
   }
+  const jwk = await crypto.subtle.exportKey("jwk", key);
+  if (!jwk.x) throw new Error(t("couldNotExtractTheX25519PublicKey"));
+  return jwk.x.replaceAll("-", "+").replaceAll("_", "/") + "=";
 }
 export function validate(model: ConfigModel): string[] {
   const issues: string[] = [];
@@ -206,12 +215,13 @@ export function validate(model: ConfigModel): string[] {
               issues.push(t("checkTheCidrFormatOf", { v0: f.key, v1: ip }));
       });
   });
-  return issues;
+  return [...issues, ...validateAddressAssignments(model)];
 }
 function validCIDR(text: string): boolean {
-  const [ip, prefix, ...extra] = text.split("/");
-  if (extra.length || prefix === undefined || !/^\d+$/.test(prefix))
-    return false;
+  // wg and wg-quick treat a missing prefix as a single host (/32 or /128).
+  const [ip, rawPrefix, ...extra] = text.split("/");
+  const prefix = rawPrefix ?? (ip.includes(":") ? "128" : "32");
+  if (extra.length || !/^\d+$/.test(prefix)) return false;
   if (ip.includes(":")) {
     if (+prefix > 128) return false;
     try {

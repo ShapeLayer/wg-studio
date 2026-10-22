@@ -1,3 +1,8 @@
+import { workspaceAddressWarnings } from "../core/address-validation.ts";
+import {
+  allocateInterfaceAddress,
+  allocatePeerAddresses,
+} from "../core/ip-allocation.ts";
 import { peerForInterface } from "../core/peers.ts";
 import { t } from "../i18n/index.ts";
 import type { ConfigEditorElement } from "../components/editor/config-editor.ts";
@@ -290,7 +295,12 @@ function updateSource() {
 }
 function renderValidation() {
   editor().updateValidation(
-    sourceError ? [sourceError] : validate(doc().model),
+    sourceError
+      ? [sourceError]
+      : [
+          ...validate(doc().model),
+          ...workspaceAddressWarnings(doc(), documents),
+        ],
     showIssues,
   );
 }
@@ -501,11 +511,31 @@ const actions: Record<string, () => unknown> = {
       renderTabs();
     }
   },
-  peer: () =>
+  peer: () => {
+    if (sourceError) {
+      toast(t("fixTheSourceSyntaxErrorFirst"));
+      return;
+    }
+    const peer = newPeer();
+    let allocationError = "";
+    try {
+      const addresses = allocatePeerAddresses(
+        doc().model,
+        documents.filter((d) => d.id !== active).map((d) => d.model),
+      );
+      peer.fields.find((field) => field.key === "AllowedIPs")!.value =
+        addresses.map((address) => address.allowedIP).join(", ");
+    } catch (error) {
+      // Still add the peer; AllowedIPs stays empty for the user to fill in.
+      allocationError = errorMessage(error);
+    }
     change(() => {
-      doc().model.sections.push(newPeer());
+      doc().model.sections.push(peer);
       doc().selected = doc().model.sections.length - 1;
-    }),
+    });
+    if (allocationError)
+      toast(t("peerAddedWithoutAddress", { v0: allocationError }));
+  },
   field: () =>
     change(() => {
       const s = section();
@@ -944,7 +974,23 @@ async function createLinkedProfile(
       !documents.includes(source)
     )
       throw new Error(t("theConfigurationChangedTryConnectingAgain"));
+    const addresses = allocatePeerAddresses(
+      sourceModel,
+      documents.filter((d) => d.id !== source.id).map((d) => d.model),
+      source.selected,
+    );
+    targetModel.sections[0].fields.find(
+      (field) => field.key === "Address",
+    )!.value = addresses.map((address) => address.address).join(", ");
     const sourcePeer = sourceModel.sections[source.selected];
+    const allowedField = sourcePeer.fields.find(
+      (field) => field.key === "AllowedIPs",
+    );
+    const allowedIPs = addresses.map((address) => address.allowedIP).join(", ");
+    if (allowedField) {
+      allowedField.value = allowedIPs;
+      delete allowedField.original;
+    } else sourcePeer.fields.push({ key: "AllowedIPs", value: allowedIPs });
     const publicField = sourcePeer.fields.find(
       (field) => field.key === "PublicKey",
     );
@@ -1182,6 +1228,7 @@ function cachedPublic(key: string): Promise<string> {
 }
 function renderCanvas() {
   network().updateCards(documents, active);
+  renderValidation();
   applyCamera();
   updateConnections();
 }
@@ -1443,23 +1490,8 @@ function initializeCanvas() {
     try {
       for (let i = 0; i < count; i++) {
         const model = newConfig();
-        const used = new Set(
-          documents.flatMap((d) =>
-            d.model.sections
-              .filter((s) => s.type === "Interface")
-              .flatMap((s) =>
-                s.fields
-                  .filter((f) => f.key === "Address")
-                  .flatMap((f) =>
-                    splitList(f.value ?? "").map((ip) => ip.split("/")[0]),
-                  ),
-              ),
-          ),
-        );
-        let octet = 1;
-        while (octet < 255 && used.has(`10.0.0.${octet}`)) octet++;
         model.sections[0].fields.find((f) => f.key === "Address")!.value =
-          `10.0.0.${octet}/24`;
+          allocateInterfaceAddress(documents.map((d) => d.model));
         if ($("#batch-keys").checked)
           model.sections[0].fields[0].value = generatePrivateKey();
         createDocument(`${prefix}${sequence}.conf`, serialize(model)).saved =

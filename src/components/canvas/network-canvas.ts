@@ -48,6 +48,8 @@ export class NetworkCanvasElement extends TemplateElement {
       } catch (error) {
         d.error = error instanceof Error ? error.message : String(error);
       }
+    }
+    for (const d of documents) {
       let card = container.querySelector<ConfigCardElement>(
         `[data-document="${d.id}"]`,
       );
@@ -55,7 +57,7 @@ export class NetworkCanvasElement extends TemplateElement {
         card = document.createElement("wg-config-card") as ConfigCardElement;
         container.append(card);
       }
-      card.update(d, active);
+      card.update(d, active, documents);
     }
   }
   updateConnections(
